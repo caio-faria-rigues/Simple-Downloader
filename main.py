@@ -42,7 +42,7 @@ def audio_download():
 
 root = Tk()
 root.title("Youtube Downloader")
-icon = PhotoImage(file='C:\\Users\\Cliente\\PycharmProjects\\guppe\\Projetos\\music downloader\\youtube-icon.png')
+icon = PhotoImage(file=os.path.abspath(os.getcwd())+"\\youtube-icon.png")
 root.iconphoto(False, icon)
 
 frm = ttk.Frame(root, padding=10)
