@@ -1,13 +1,18 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import messagebox
 from tkinter import Label
 from tkinter import PhotoImage
 from pytube import YouTube
+import threading
 import os
 
-
 caminho = ''
+options_list = ['1080p', '720p', '480p', '360p', '240p', '144p']
+index = 0
+res = ''
+message = ''
 
 
 def path_download():
@@ -17,41 +22,106 @@ def path_download():
     return origem
 
 
-def video_download():
-    path = path_download()
-    link = search.get()
+def hidenseek():
+    global index
+    index = index + 1
+    if index % 2 == 0:
+        options.place_forget()
+    else:
+        options.place(x=365, y=186)
 
-    yt = YouTube(link)
-    mp4_files = yt.streams.filter(file_extension="mp4")
-    mp4_files_hd = mp4_files.get_by_resolution("720p")
-    mp4_files_hd.download(path)
+
+def video_download():
+    global index
+    global res
+    global message
+    try:
+        link = search.get()
+        yt = YouTube(link)
+        mp4_files = yt.streams.filter(file_extension="mp4")
+
+        new_file_name = file_name.get()
+        path = path_download()
+        if index % 2 == 0:
+            res = '720p'
+        if index % 2 != 0:
+            res = options.get(options.curselection())
+        # print(res)
+
+        mp4_files_hd = mp4_files.get_by_resolution(res)
+
+        try:
+            if new_file_name == '':
+                mp4_files_hd.download(path)
+            else:
+                mp4_files_hd.download(path, filename=new_file_name + ".mp4")
+        except:
+            messagebox.showerror('Simple Downloader - Oops...',
+                                 'Algo deu errado! :(\nTente novamente em outra resolução!')
+    except:
+        pass
 
 
 def audio_download():
-    path = path_download()
-    link = search.get()
+    try:
+        new_file_name = file_name.get()
+        path = path_download()
+        link = search.get()
 
-    yt = YouTube(link)
-    mp3_files = yt.streams.filter(only_audio=True).first()
-    audio = mp3_files.download(path)
+        yt = YouTube(link)
+        mp3_files = yt.streams.filter(only_audio=True).first()
 
-    base, ext = os.path.splitext(audio)
-    new_file = base + '.mp3'
-    os.rename(audio, new_file)
+        if new_file_name == '':
+            audio = mp3_files.download(path)
+        else:
+            audio = mp3_files.download(path, filename=new_file_name + ".mp3")
+
+        base, ext = os.path.splitext(audio)
+        new_file = base + '.mp3'
+        os.rename(audio, new_file)
+    except:
+        pass
+
+
+def video_threading():
+    threading1 = threading.Thread(target=video_download()).start()
+    return threading1
+
+
+def info():
+    messagebox.showinfo('Simple Downloader - Info', """Versão 0.1.2 de 02/10/2022\nVersão beta: podem haver diversos 
+    erros.\nSinta-se a vontade para avaliar e\\ou reportar erros.\nCriado por Caio Faria Rigues.""")
 
 
 root = Tk()
-root.title("Youtube Downloader")
-icon = PhotoImage(file=os.path.abspath(os.getcwd())+"\\youtube-icon.png")
+root.title("Simple Downloader")
+icon = PhotoImage(file=os.path.abspath(os.getcwd()) + "\\youtube-icon.png")
 root.iconphoto(False, icon)
 
+# download
 frm = ttk.Frame(root, padding=10)
-root.minsize(600, 300)
-root.configure(background='#dde')
-Label(root, text="\nYoutube Downloader\n\n\n", background='#dde').grid(column=0, row=0)
-Label(root, text="Insira o link abaixo:\n", background='#dde').grid(column=0, row=1)
+root.minsize(600, 350)
+root.configure(background='#BADEFC')
+Label(root, text="\nYoutube Downloader\n\n\n", background='#BADEFC').grid(column=0, row=0)
+Label(root, text="Insira o link abaixo:\n", background='#BADEFC').grid(column=0, row=1)
 search = Entry(root, width=100)
 search.grid(column=0, row=2)
-botao = ttk.Button(root, text="Baixar Audio", command=audio_download).grid(column=0, row=3)
-botao2 = ttk.Button(root, text="Baixar Video", command=video_download).grid(column=0, row=4)
+
+# nome do arquivo
+Label(root, text="\nNomeie o arquivo(opcional):\n", background='#BADEFC').grid(column=0, row=3)
+file_name = Entry(root, width=20)
+file_name.grid(column=0, row=4)
+
+# botoes
+botao = ttk.Button(root, text="Baixar Audio", command=audio_download).grid(column=0, row=5)
+botao2 = ttk.Button(root, text="Baixar Video", command=video_threading).grid(column=0, row=6)
+
+botao_info = Button(root, text="    ℹ️", width=1, height=1, command=info).place(y=1, x=1)
+
+options = Listbox(master=root, selectmode='single', heigh=6, width=7, selectbackground='#B5446E')
+for iten in options_list:
+    options.insert(END, iten)
+
+botaoconfig = Button(root, text="⚙️", width=1, height=1, command=hidenseek).place(x=340, y=231)
+
 root.mainloop()
