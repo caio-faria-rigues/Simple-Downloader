@@ -95,16 +95,30 @@ def info():
 
 root = Tk()
 root.title("Simple Downloader")
-icon = PhotoImage(file=os.path.abspath(os.getcwd()) + "\\youtube-icon.png")
+icon = PhotoImage(file=r"src\logo simple downloader.png")
 root.iconphoto(False, icon)
+
+background = PhotoImage(file=r"src\900 x 525 background.png")
+input_bar = PhotoImage(file=r"src\input bar 510 x 64.png")
+
+logo = PhotoImage(file=r"src\logo simple downloader transparent.png")
+header = PhotoImage(file=r"src\Simple downloader header.png")
 
 # download
 frm = ttk.Frame(root, padding=10)
-root.minsize(600, 350)
-root.configure(background='#BADEFC')
-Label(root, text="\nYoutube Downloader\n\n\n", background='#BADEFC').grid(column=0, row=0)
-Label(root, text="Insira o link abaixo:\n", background='#BADEFC').grid(column=0, row=1)
-search = Entry(root, width=100)
+root.minsize(898, 525)
+root.maxsize(898, 525)
+background_label = Label(root, image=background)
+background_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+logo_canva = Canvas(root, width=470, height=70)
+logo_canva.create_image((0, 0), anchor="nw", image=logo)
+logo_canva.create_image((70, 0), anchor="nw", image=header)
+logo_canva.grid(column=0, row=0)
+
+# Label(root, text="\nYoutube Downloader\n\n\n", background='#BADEFC').grid(column=0, row=0)
+# Label(root, text="Insira o link abaixo:\n", background='#BADEFC').grid(column=0, row=1)
+search = Entry(root, width=100, borderwidth=0, highlightthickness=0, background="white")
 search.grid(column=0, row=2)
 
 # nome do arquivo
